@@ -19,12 +19,13 @@ export const signIn = async (req, res) => {
     const secret = process.env.SECRET;
     if (user && isPasswordCorrect && secret) {
       res.status(200).json({
-        email: user.email,
-        name: user.name,
-        token: jwt.sign({ id: user.id }, secret, { expiresIn: "1d" }),
-        key: user.key,
-        role: user.role,
-        avatarUrl: user.avatarUrl,
+        user,
+        // email: user.email,
+        // name: user.name,
+        // token: jwt.sign({ id: user.id }, secret, { expiresIn: "1d" }),
+        // key: user.key,
+        // role: user.role,
+        // avatarUrl: user.avatarUrl,
       });
     } else {
       return res
@@ -73,10 +74,10 @@ export const signUp = async (req, res) => {
     });
 
     const user = await newUser.save();
-    console.log(user);
+
     const secret = process.env.SECRET;
     if (user && secret) {
-      res.json({ newUser });
+      res.json({ user });
     } else {
       return res
         .status(400)
