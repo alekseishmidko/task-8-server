@@ -13,19 +13,23 @@ export const signIn = async (req, res) => {
       return res.status(400).json({ message: "enter all forms" });
     }
     const user = await UsersModel.findOne({ email });
+
     // сравнение пароля и хешпароля
     const isPasswordCorrect =
       user && (await bcrypt.compare(password, user.password));
     const secret = process.env.SECRET;
     if (user && isPasswordCorrect && secret) {
       res.status(200).json({
-        user,
-        // email: user.email,
-        // name: user.name,
-        // token: jwt.sign({ id: user.id }, secret, { expiresIn: "1d" }),
-        // key: user.key,
-        // role: user.role,
-        // avatarUrl: user.avatarUrl,
+        user: {
+          // user,
+          email: user.email,
+          name: user.name,
+          // token: jwt.sign({ id: user.id }, secret, { expiresIn: "1d" }),
+          key: user.key,
+          role: user.role,
+          avatarUrl: user.avatarUrl,
+        },
+        token: jwt.sign({ id: user.id }, secret, { expiresIn: "1d" }),
       });
     } else {
       return res
@@ -77,7 +81,10 @@ export const signUp = async (req, res) => {
 
     const secret = process.env.SECRET;
     if (user && secret) {
-      res.json({ user });
+      res.json({
+        user,
+        token: jwt.sign({ id: user.id }, secret, { expiresIn: "1d" }),
+      });
     } else {
       return res
         .status(400)
@@ -95,5 +102,10 @@ export const signUp = async (req, res) => {
  * @access Private
  */
 export const current = async (req, res) => {
-  return res.status(200).json(req.user);
+  try {
+    // console.log(req.user._id, "userId");
+    return res.status(200).json(req.user);
+  } catch (error) {
+    res.status(500).json({ message: "Error in current" });
+  }
 };

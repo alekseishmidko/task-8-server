@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import cors from "cors";
 import { usersRouter } from "./routes/usersRouter.js";
+import { productsRouter } from "./routes/productsRouter.js";
 import { signIn, signUp } from "./controllers/usersController.js";
 const app = express();
 dotenv.config();
@@ -31,5 +32,4 @@ app.listen(3001, (error) => {
 });
 //socket
 app.use("/api/users/", usersRouter);
-// app.post("/api/users/signUp", signUp);
-// app.post("/api/users/signIn", signIn);
+app.use("/api/products/", productsRouter);
