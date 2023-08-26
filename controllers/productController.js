@@ -35,7 +35,11 @@ export const createProduct = async (req, res) => {
 // */
 export const getAllProducts = async (req, res) => {
   try {
-    const allProds = await ProductsModel.find().sort("createdAt");
+    // populate  - вписывает нужное поле из другой модели например автора , а я в свою очередь вписал только userId
+    const allProds = await ProductsModel.find()
+      .sort("createdAt")
+      .populate("author")
+      .exec();
     if (!allProds) {
       return res.json({ message: "there arent products" });
     }

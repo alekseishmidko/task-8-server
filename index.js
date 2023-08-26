@@ -6,6 +6,7 @@ import cors from "cors";
 import { usersRouter } from "./routes/usersRouter.js";
 import { productsRouter } from "./routes/productsRouter.js";
 import { signIn, signUp } from "./controllers/usersController.js";
+import { reviewsRouter } from "./routes/reviewsRouter.js";
 const app = express();
 dotenv.config();
 app.use(express.json());
@@ -33,3 +34,4 @@ app.listen(3001, (error) => {
 //socket
 app.use("/api/users/", usersRouter);
 app.use("/api/products/", productsRouter);
+app.use("/api/reviews/", reviewsRouter);

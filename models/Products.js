@@ -4,10 +4,13 @@ const ProductsSchema = new mongoose.Schema(
     title: { type: String, required: true },
     group: {
       type: String,
-      enum: ['books', 'games', 'movies', 'music'],
+      enum: ["books", "games", "movies", "music"],
       required: true,
     },
-    author: { type: String, required: true },
+    author: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "UsersModel",
+    },
     reviews: [
       {
         type: mongoose.Schema.Types.ObjectId,

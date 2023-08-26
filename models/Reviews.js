@@ -5,6 +5,10 @@ const ReviewsSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    content: {
+      type: String,
+      required: true,
+    },
     group: {
       type: String,
       enum: ["books", "games", "movies", "music"],
@@ -30,12 +34,12 @@ const ReviewsSchema = new mongoose.Schema(
     comments: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Comment", // Ссылка на модель Comment
+        ref: "CommentsModel", // Ссылка на модель Comment
       },
     ],
     productId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "ProductModel",
+      ref: "ProductsModel",
       required: true,
     },
   },
