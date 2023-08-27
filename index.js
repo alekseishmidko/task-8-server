@@ -7,6 +7,7 @@ import { usersRouter } from "./routes/usersRouter.js";
 import { productsRouter } from "./routes/productsRouter.js";
 import { signIn, signUp } from "./controllers/usersController.js";
 import { reviewsRouter } from "./routes/reviewsRouter.js";
+import { likesRouter } from "./routes/likesRouter.js";
 const app = express();
 dotenv.config();
 app.use(express.json());
@@ -35,3 +36,4 @@ app.listen(3001, (error) => {
 app.use("/api/users/", usersRouter);
 app.use("/api/products/", productsRouter);
 app.use("/api/reviews/", reviewsRouter);
+app.use("/api/likes/", likesRouter);

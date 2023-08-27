@@ -99,6 +99,7 @@ export const getMyReviews = async (req, res) => {
 export const updateReview = async (req, res) => {
   try {
     const userId = req.user.id;
+    const user = req.user;
     const _id = req.params.id;
     // console.log(userId, "/", _id);
 
@@ -106,23 +107,32 @@ export const updateReview = async (req, res) => {
     if (!userId) {
       return res.status(401).json({ message: "not authorised" });
     }
-    const existingReview = await ReviewsModel.findOne({ _id, userId });
-    // console.log(existingReview);
+    //
+    const existingReview = await ReviewsModel.findOne({ _id });
     if (!existingReview) {
       return res
         .status(404)
         .json({ message: "dont find review! (updateReview)" });
     }
-    existingReview.title = title;
-    existingReview.tags = extractHashtags(content);
+    // console.log(existingReview);
+    if (
+      user.role === "admin" ||
+      user.role === "superadmin" ||
+      existingReview.userId === userId
+    ) {
+      existingReview.title = title;
+      existingReview.tags = extractHashtags(content);
 
-    existingReview.group = group;
-    existingReview.rating = rating;
-    existingReview.content = content;
+      existingReview.group = group;
+      existingReview.rating = rating;
+      existingReview.content = content;
 
-    await existingReview.save();
+      await existingReview.save();
 
-    res.status(200).json({ message: "Review is succesfully updated" });
+      res.status(200).json({ message: "Review is succesfully updated" });
+    } else {
+      res.status(401).json({ message: "not authorised!" });
+    }
   } catch (error) {
     res.status(500).json({ message: "Error in updateReview" });
   }
