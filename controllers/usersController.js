@@ -109,3 +109,22 @@ export const current = async (req, res) => {
     res.status(500).json({ message: "Error in current" });
   }
 };
+/**
+ *
+ * @route GET /api/users/all
+ * @desc Текущий пользователь
+ * @access Private
+ */
+export const getAllUsers = async (req, res) => {
+  try {
+    const user = req.user;
+    if (user.role === "admin" || user.role === "superadmin") {
+      const allUsers = await UsersModel.find().exec();
+      res.status(200).send({ allUsers });
+    } else {
+      res.status(404).json({ message: "not authorised" });
+    }
+  } catch (error) {
+    res.status(500).json({ message: "Error in getAllUsers" });
+  }
+};

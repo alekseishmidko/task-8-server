@@ -10,6 +10,7 @@ import {
   getOneReview,
   updateReview,
 } from "../controllers/reviewController.js";
+import { handleRatingReview } from "../controllers/ratingController.js";
 //api/reviews/create
 reviewsRouter.post("/create", auth, createReview);
 //api/reviews/all
@@ -22,3 +23,5 @@ reviewsRouter.get("/user/myReviews", auth, getMyReviews);
 reviewsRouter.put("/:id", auth, updateReview);
 //api/reviews/:id
 reviewsRouter.delete("/:id", auth, deleteReview);
+//api/reviews/:id
+reviewsRouter.post("/:id", auth, handleRatingReview);

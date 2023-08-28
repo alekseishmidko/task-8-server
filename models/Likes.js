@@ -16,7 +16,7 @@ const LikesSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// middleware
+// middleware по поставке лайка или убору лайка с поста
 
 LikesSchema.pre("save", async function (next) {
   console.log(this.reviewId, "thius");

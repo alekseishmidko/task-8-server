@@ -115,6 +115,7 @@ export const updateReview = async (req, res) => {
         .json({ message: "dont find review! (updateReview)" });
     }
     // console.log(existingReview);
+    //  проверка на роль
     if (
       user.role === "admin" ||
       user.role === "superadmin" ||
@@ -140,16 +141,34 @@ export const updateReview = async (req, res) => {
 
 export const deleteReview = async (req, res) => {
   try {
+    const user = req.user;
     const userId = req.user.id;
     const _id = req.params.id;
     if (!userId) {
       return res.status(401).json({ message: "not authorised" });
     }
-    const deleteReview = await ReviewsModel.findOneAndDelete({ _id, userId });
-    if (!deleteReview) {
+
+    const review = await ReviewsModel.findById(_id);
+    console.log(review.userId, "review", userId);
+
+    if (!review) {
       return res.status(404).json({ message: "Review is not found" });
     }
-    res.status(200).json({ message: "Обзор успешно удален" });
+
+    if (
+      user.role === "admin" ||
+      user.role === "superadmin" ||
+      review.userId === userId
+    ) {
+      const deleteReview = await ReviewsModel.findByIdAndDelete(_id);
+      if (!deleteReview) {
+        return res.status(500).json({ message: "Failed to delete review" });
+      }
+
+      return res.status(200).json({ message: "Review successfully deleted" });
+    } else {
+      return res.status(403).json({ message: "Unauthorized to delete review" });
+    }
   } catch (error) {
     res.status(500).json({ message: "Error in deleteReview" });
   }

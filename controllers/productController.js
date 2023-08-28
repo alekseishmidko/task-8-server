@@ -39,6 +39,7 @@ export const getAllProducts = async (req, res) => {
     const allProds = await ProductsModel.find()
       .sort("createdAt")
       .populate("author")
+      .populate("ratings")
       .exec();
     if (!allProds) {
       return res.json({ message: "there arent products" });

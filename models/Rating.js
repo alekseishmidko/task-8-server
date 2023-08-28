@@ -15,7 +15,7 @@ const RatingsSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "ProductsModel",
     },
-    rating: {
+    ratingFive: {
       type: Number,
       default: 0,
       min: 0,
