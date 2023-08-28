@@ -18,12 +18,13 @@ const ProductsSchema = new mongoose.Schema(
       },
     ],
 
-    // ratings: [
-    //   {
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     ref: "RatingsModel",
-    //   },
-    // ],
+    ratingFive: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "RatingsModel",
+        required: true,
+      },
+    ],
   },
   { timestamps: true }
 );

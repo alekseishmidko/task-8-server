@@ -50,6 +50,7 @@ export const getAllReviews = async (req, res) => {
     const allReviews = await ReviewsModel.find()
       .sort("createdAt")
       .populate("userId")
+      .populate("ratingFive")
       .exec();
     if (!allReviews) {
       return res.json({ message: "there arent reviews" });
@@ -57,12 +58,31 @@ export const getAllReviews = async (req, res) => {
     const last6Reviews = await ReviewsModel.find()
       .limit(6)
       .populate("userId")
+      .populate("ratingFive")
       .sort("-createdAt");
     const pop6Reviews = await ReviewsModel.find()
       .limit(6)
       .populate("userId")
+      .populate("ratingFive")
       .sort("rating");
-    res.send({ allReviews, last6Reviews, pop6Reviews });
+
+    const reviewsWithAvgRatingFive = await Promise.all(
+      allReviews.map(async (review) => {
+        const avgRatingFive =
+          review.ratingFive.reduce(
+            (sum, rating) => sum + rating.ratingFive,
+            0
+          ) / review.ratingFive.length;
+        return { ...review.toObject(), avgRatingFive };
+      })
+    );
+    // res.send({ reviewsWithAvgRatingFive });
+    res.send({
+      allReviews,
+      last6Reviews,
+      pop6Reviews,
+      reviewsWithAvgRatingFive,
+    });
   } catch (error) {
     res.status(500).json({ message: "Error in getAll reviews" });
   }

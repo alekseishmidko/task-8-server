@@ -18,6 +18,13 @@ const ReviewsSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    ratingFive: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "RatingsModel",
+        required: true,
+      },
+    ],
 
     likes: { type: Number, default: 0 },
 
