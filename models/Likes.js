@@ -6,7 +6,7 @@ const LikesSchema = new mongoose.Schema(
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "UsersModel",
-      required: true,
+      // required: true,
     },
     reviewId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -19,7 +19,7 @@ const LikesSchema = new mongoose.Schema(
 // middleware по поставке лайка или убору лайка с поста
 
 LikesSchema.pre("save", async function (next) {
-  console.log(this.reviewId, "thius");
+  // console.log(this.reviewId, "thius");
   if (this.reviewId) {
     const models = this;
     const review = await models
@@ -35,7 +35,7 @@ LikesSchema.pre("deleteOne", async function (next) {
   console.log(this, "thius");
   const models = this;
   const like = await this.model.findById(this.getQuery());
-  console.log(like, "like");
+  // console.log(like, "like");
 
   if (like.reviewId) {
     const review = await ReviewsModel.findById({ _id: like.reviewId });
@@ -48,6 +48,6 @@ LikesSchema.pre("deleteOne", async function (next) {
   }
   next();
 });
-LikesSchema.index({ userId: 1, reviews: 1 }, { unique: true }); // Уникальный индекс для предотвращения повторных лайков
+// LikesSchema.index({ userId: 1, reviews: 1 }, { unique: true }); // Уникальный индекс для предотвращения повторных лайков
 export default mongoose.model("LikesModel", LikesSchema);
 //  Likes каждый авторизованный пользователь может поставить лайк обзору (не более 1 лайка от юзера на обзор)

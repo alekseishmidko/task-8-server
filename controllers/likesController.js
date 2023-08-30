@@ -2,10 +2,11 @@ import LikesModel from "../models/Likes.js";
 
 export const handleLike = async (req, res) => {
   const userId = req.user.id;
+
   const reviewId = req.params.id;
-  // console.log(userId, reviewId);
+  console.log(userId, reviewId);
   const existingLike = await LikesModel.findOne({ reviewId, userId });
-  // console.log(existingLike, "exs like");
+  console.log(existingLike, "exs like");
   if (existingLike === null) {
     const newLike = await LikesModel({
       userId,

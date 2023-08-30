@@ -12,6 +12,16 @@ function extractHashtags(inputString) {
 
   return hashtags;
 }
+const calcAverageRatingFive = (arr) => {
+  if (!arr || arr.length === 0) {
+    return 0;
+  }
+
+  const totalRating = arr.reduce((sum, item) => sum + item.ratingFive, 0);
+  const averageRating = totalRating / arr.length;
+
+  return averageRating;
+};
 export const createReview = async (req, res) => {
   try {
     const { title, group, rating, productId, content } = req.body;
@@ -65,7 +75,9 @@ export const getAllReviews = async (req, res) => {
       .populate("userId")
       .populate("ratingFive")
       .sort("rating");
-
+    const allUnicTags = [
+      ...new Set(allReviews.flatMap((review) => review.tags)),
+    ];
     const reviewsWithAvgRatingFive = await Promise.all(
       allReviews.map(async (review) => {
         const avgRatingFive =
@@ -78,6 +90,7 @@ export const getAllReviews = async (req, res) => {
     );
     // res.send({ reviewsWithAvgRatingFive });
     res.send({
+      allUnicTags,
       allReviews,
       last6Reviews,
       pop6Reviews,
@@ -90,8 +103,14 @@ export const getAllReviews = async (req, res) => {
 
 export const getOneReview = async (req, res) => {
   try {
-    const review = await ReviewsModel.findById(req.params.id);
-    res.send({ review });
+    const review = await ReviewsModel.findById(req.params.id).populate(
+      "ratingFive"
+    );
+
+    const ratingFive = review.ratingFive;
+
+    const averageRatingFive = calcAverageRatingFive(ratingFive);
+    res.send({ review, averageRatingFive });
   } catch (error) {
     res.status(500).json({ message: "Error in getOneReview" });
   }
@@ -122,13 +141,14 @@ export const updateReview = async (req, res) => {
     const user = req.user;
     const _id = req.params.id;
     // console.log(userId, "/", _id);
-
+    console.log(req.body.title, req.body.content, "body");
     const { title, group, rating, content } = req.body;
     if (!userId) {
       return res.status(401).json({ message: "not authorised" });
     }
     //
     const existingReview = await ReviewsModel.findOne({ _id });
+    console.log(existingReview, "existingReview");
     if (!existingReview) {
       return res
         .status(404)

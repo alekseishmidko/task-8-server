@@ -36,15 +36,29 @@ export const createProduct = async (req, res) => {
 export const getAllProducts = async (req, res) => {
   try {
     // populate  - вписывает нужное поле из другой модели например автора , а я в свою очередь вписал только userId
-    const allProds = await ProductsModel.find()
+
+    const allProducts = await ProductsModel.find()
       .sort("createdAt")
       .populate("author")
-      .populate("ratings")
+      .populate("ratingFive")
       .exec();
-    if (!allProds) {
+
+    if (!allProducts) {
       return res.json({ message: "there arent products" });
     }
-    res.json(allProds);
+    //
+    const productsWithAvgRatingFive = await Promise.all(
+      allProducts.map(async (review) => {
+        const avgRatingFive =
+          review.ratingFive.reduce(
+            (sum, rating) => sum + rating.ratingFive,
+            0
+          ) / review.ratingFive.length;
+        return { ...review.toObject(), avgRatingFive };
+      })
+    );
+
+    res.status(200).send({ allProducts, productsWithAvgRatingFive });
   } catch (error) {
     res.status(500).json({ message: "Error in getAll prod" });
   }
