@@ -5,6 +5,7 @@ import {
   signUp,
   current,
   getAllUsers,
+  deleteUser,
 } from "../controllers/usersController.js";
 import { auth } from "../utils/auth.js";
 //api/users/signIn
@@ -15,3 +16,5 @@ usersRouter.post("/signUp", signUp);
 usersRouter.get("/current", auth, current);
 //api/users/all
 usersRouter.get("/all", auth, getAllUsers);
+//api/users/:id
+usersRouter.delete("/:id", auth, deleteUser);

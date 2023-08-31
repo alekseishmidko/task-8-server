@@ -128,3 +128,25 @@ export const getAllUsers = async (req, res) => {
     res.status(500).json({ message: "Error in getAllUsers" });
   }
 };
+export const deleteUser = async (req, res) => {
+  try {
+    const user = req.user;
+    const userId = req.user.id;
+    const _id = req.params.id;
+
+    if (
+      (user.role === "admin" && userId !== _id) ||
+      (user.role === "superadmin" && userId !== _id)
+    ) {
+      const deletedUser = await UsersModel.findByIdAndDelete(_id);
+      if (!deletedUser) {
+        return res.status(500).json({ message: "Failed to delete user" });
+      }
+      return res.status(200).json({ message: "User successfully deleted" });
+    } else {
+      res.status(403).json({ message: "Unauthorized to delete user" });
+    }
+  } catch (error) {
+    res.status(500).json({ message: "Error in deleteUser" });
+  }
+};
