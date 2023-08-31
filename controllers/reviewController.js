@@ -1,16 +1,27 @@
 import ReviewsModel from "../models/Reviews.js";
 import UsersModel from "../models/Users.js";
 function extractHashtags(inputString) {
+  // const words = inputString.split(/\s+/); // Разбиваем строку на слова
+  // const hashtags = [];
+
+  // words.forEach((word) => {
+  //   if (word.startsWith("#")) {
+  //     hashtags.push(word.substring()); // Удаляем символ #
+  //   }
+  // });
+
+  // return hashtags;
   const words = inputString.split(/\s+/); // Разбиваем строку на слова
-  const hashtags = [];
+  const hashtags = new Set(); // Используем Set для уникальных значений
 
   words.forEach((word) => {
     if (word.startsWith("#")) {
-      hashtags.push(word.substring()); // Удаляем символ #
+      const hashtag = word.substring(); // Удаляем символ #
+      hashtags.add(hashtag);
     }
   });
 
-  return hashtags;
+  return Array.from(hashtags);
 }
 const calcAverageRatingFive = (arr) => {
   if (!arr || arr.length === 0) {
