@@ -76,21 +76,43 @@ export const getAllReviews = async (req, res) => {
     if (!allReviews) {
       return res.json({ message: "there arent reviews" });
     }
-    const last6Reviews = await ReviewsModel.find()
+    const last6ReviewsRaw = await ReviewsModel.find()
       .limit(6)
       .populate("userId")
       .populate("ratingFive")
-      .sort("-createdAt");
-    const pop6Reviews = await ReviewsModel.find()
+      .sort("-createdAt")
+      .exec();
+    const pop6ReviewsRaw = await ReviewsModel.find()
       .limit(6)
       .populate("userId")
       .populate("ratingFive")
-      .sort("rating");
+      .sort("rating")
+      .exec();
     const allUnicTags = [
       ...new Set(allReviews.flatMap((review) => review.tags)),
     ];
     const reviewsWithAvgRatingFive = await Promise.all(
       allReviews.map(async (review) => {
+        const avgRatingFive =
+          review.ratingFive.reduce(
+            (sum, rating) => sum + rating.ratingFive,
+            0
+          ) / review.ratingFive.length;
+        return { ...review.toObject(), avgRatingFive };
+      })
+    );
+    const last6Reviews = await Promise.all(
+      last6ReviewsRaw.map(async (review) => {
+        const avgRatingFive =
+          review.ratingFive.reduce(
+            (sum, rating) => sum + rating.ratingFive,
+            0
+          ) / review.ratingFive.length;
+        return { ...review.toObject(), avgRatingFive };
+      })
+    );
+    const pop6Reviews = await Promise.all(
+      pop6ReviewsRaw.map(async (review) => {
         const avgRatingFive =
           review.ratingFive.reduce(
             (sum, rating) => sum + rating.ratingFive,
@@ -129,6 +151,7 @@ export const getOneReview = async (req, res) => {
 
 export const getMyReviews = async (req, res) => {
   try {
+    console.log(req.body);
     const userId = req.user._id;
     if (!userId) {
       return res.status(401).json({ message: "Not authorised" });
@@ -139,8 +162,39 @@ export const getMyReviews = async (req, res) => {
         .status(404)
         .json({ message: "Not found a user! (getMyReviews)" });
     }
-    const userReviews = await ReviewsModel.find({ userId });
-    res.send(userReviews);
+    const userReviews = await ReviewsModel.find({ userId })
+      .populate("ratingFive")
+      .populate("productId");
+    const newData = userReviews.map((item) => {
+      const ratingFive = item.ratingFive;
+      if (ratingFive.length > 0) {
+        const totalRating = ratingFive.reduce(
+          (sum, rating) => sum + rating.ratingFive,
+          0
+        );
+        const averageRating = (totalRating / ratingFive.length).toFixed(1);
+        return { ...item, averageRatingFive: averageRating };
+      } else {
+        return { ...item, averageRatingFive: 0 };
+      }
+    });
+    const arr = newData.map((item) => {
+      return item._doc;
+    });
+    const aver = newData.map((item) => {
+      return { averageRatingFive: item.averageRatingFive };
+    });
+    const combinedData = arr
+      .map((item, index) => ({
+        ...item,
+        ...aver[index],
+      }))
+      .map((item) => ({
+        ...item,
+        productTitle: item.productId.title,
+      }));
+    res.send(combinedData);
+    // res.send(userReviews);
   } catch (error) {
     res.status(500).json({ message: "Error in getMyReviews" });
   }
@@ -224,3 +278,74 @@ export const deleteReview = async (req, res) => {
     res.status(500).json({ message: "Error in deleteReview" });
   }
 };
+
+export const getReviewsByUser = async (req, res) => {
+  try {
+    const user = req.user;
+    const userId = req.user.id;
+    // _id здесь это id пользователя, по которому искать все его обзоры
+    const _id = req.params.id;
+    if (user.role === "admin" || user.role === "superadmin") {
+      const reviewsByUser = await ReviewsModel.find({ userId: _id });
+      res.send(reviewsByUser);
+      if (!reviewsByUser) {
+        return res
+          .status(500)
+          .json({ message: "Failed to get reviews by user" });
+      }
+    } else {
+      return res
+        .status(403)
+        .json({ message: "Unauthorized to get reviews by user" });
+    }
+  } catch (error) {
+    res.status(500).json({ message: "Error in getReviewsByUser" });
+  }
+};
+
+//
+// async function calculateAverageRating(reviews) {
+//   const updatedReviews = await Promise.all(
+//     reviews.map(async (review) => {
+//       const { ratingFive, _id } = review;
+
+//       if (ratingFive.length === 0) {
+//         return { ...review, averageRatingFive: 0 };
+//       }
+
+//       const ratingSum = ratingFive.reduce(
+//         (acc, rating) => acc + rating.ratingFive,
+//         0
+//       );
+//       const averageRating = ratingSum / ratingFive.length;
+
+//       // Обновляем поле averageRatingFive в базе данных
+//       await ReviewsModel.findByIdAndUpdate(_id, {
+//         averageRatingFive: averageRating,
+//       });
+
+//       return { ...review, averageRatingFive: averageRating };
+//     })
+//   );
+//   const answ = updatedReviews.map((item) => {
+//     return { rev: item._doc, averageRatingFive: item.averageRatingFive };
+//   });
+//   const answer2 = answ.map((item) => {
+//     // Получаем рейтинг из поля ratingFive и вычисляем среднее значение
+//     const ratingFive = item.rev.ratingFive;
+//     const averageRating =
+//       ratingFive.length > 0
+//         ? ratingFive.reduce((acc, current) => acc + current.ratingFive, 0) /
+//           ratingFive.length
+//         : 0;
+//     return item;
+//   });
+//   return answer2;
+// }
+// calculateAverageRating(userReviews)
+//   .then((updatedReviews) => {
+//     res.send(updatedReviews);
+//   })
+//   .catch((error) => {
+//     console.error(error);
+//   });

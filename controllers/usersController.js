@@ -150,3 +150,33 @@ export const deleteUser = async (req, res) => {
     res.status(500).json({ message: "Error in deleteUser" });
   }
 };
+
+export const handleRoleUser = async (req, res) => {
+  try {
+    const user = req.user;
+    const userId = req.user.id;
+    const _id = req.params.id;
+    const findUser = await UsersModel.findById(_id);
+    const newRole = findUser.role === "user" ? "admin" : "user";
+    console.log(findUser, "findUser", findUser.role, "role", newRole);
+    if (!findUser) {
+      return res
+        .status(404)
+        .json({ message: "dont find user! (handleRoleUser)" });
+    }
+    if (
+      (user.role === "admin" && userId !== _id) ||
+      (user.role === "superadmin" && userId !== _id)
+    ) {
+      if (findUser.role === "user" || findUser.role === "admin") {
+        findUser.role = newRole;
+      }
+      await findUser.save();
+      res.status(200).json({ message: "User role is succesfully updated" });
+    } else {
+      res.status(401).json({ message: "not authorised!" });
+    }
+  } catch (error) {
+    res.status(500).json({ message: "Error in handleRole" });
+  }
+};

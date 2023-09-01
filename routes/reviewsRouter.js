@@ -9,6 +9,7 @@ import {
   getMyReviews,
   getOneReview,
   updateReview,
+  getReviewsByUser,
 } from "../controllers/reviewController.js";
 import { handleRatingReview } from "../controllers/ratingController.js";
 //api/reviews/create
@@ -17,11 +18,13 @@ reviewsRouter.post("/create", auth, createReview);
 reviewsRouter.get("/all", getAllReviews);
 //api/reviews/:id
 reviewsRouter.get("/:id", getOneReview);
-//api/reviews/user/myReviews
-reviewsRouter.get("/user/myReviews", auth, getMyReviews);
+//api/reviews/users/myReviews
+reviewsRouter.get("/users/myReviews", auth, getMyReviews);
 //api/reviews/:id
 reviewsRouter.put("/:id", auth, updateReview);
 //api/reviews/:id
 reviewsRouter.delete("/:id", auth, deleteReview);
 //api/reviews/:id
 reviewsRouter.post("/:id", auth, handleRatingReview);
+//api/reviews/users/:id
+reviewsRouter.get("/users/:id", auth, getReviewsByUser);
