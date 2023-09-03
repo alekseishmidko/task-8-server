@@ -21,7 +21,7 @@ export const signIn = async (req, res) => {
     if (user && isPasswordCorrect && secret) {
       res.status(200).json({
         user: {
-          // user,
+          _id: user._id,
           email: user.email,
           name: user.name,
           // token: jwt.sign({ id: user.id }, secret, { expiresIn: "1d" }),
@@ -104,7 +104,8 @@ export const signUp = async (req, res) => {
 export const current = async (req, res) => {
   try {
     // console.log(req.user._id, "userId");
-    return res.status(200).json(req.user);
+    const user = req.user;
+    return res.status(200).json({ user });
   } catch (error) {
     res.status(500).json({ message: "Error in current" });
   }

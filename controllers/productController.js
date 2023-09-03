@@ -1,4 +1,5 @@
 import ProductsModel from "../models/Products.js";
+import RatingsModel from "../models/Rating.js";
 
 // * @route POST /api/posts/create
 // * @desс  создание произведения
@@ -37,7 +38,12 @@ export const getAllProducts = async (req, res) => {
   try {
     // populate  - вписывает нужное поле из другой модели например автора , а я в свою очередь вписал только userId
 
-    const allProducts = await ProductsModel.find()
+    const sortBy = req.query.sortBy;
+    // console.log(sortBy);
+    const parameters = sortBy === "" ? null : { group: sortBy };
+    // console.log(parameters);
+    //
+    const allProducts = await ProductsModel.find(parameters)
       .sort("createdAt")
       .populate("author")
       .populate("ratingFive")
@@ -57,8 +63,10 @@ export const getAllProducts = async (req, res) => {
         return { ...review.toObject(), avgRatingFive };
       })
     );
-
-    res.status(200).send({ allProducts, productsWithAvgRatingFive });
+    const productsRatings = await RatingsModel.find({
+      productId: { $exists: true },
+    }).exec();
+    res.status(200).send({ productsWithAvgRatingFive, productsRatings });
   } catch (error) {
     res.status(500).json({ message: "Error in getAll prod" });
   }
