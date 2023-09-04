@@ -1,5 +1,6 @@
 import ReviewsModel from "../models/Reviews.js";
 import UsersModel from "../models/Users.js";
+import RatingsModel from "../models/Rating.js";
 function extractHashtags(inputString) {
   // const words = inputString.split(/\s+/); // Разбиваем строку на слова
   // const hashtags = [];
@@ -68,12 +69,17 @@ export const createReview = async (req, res) => {
 
 export const getAllReviews = async (req, res) => {
   try {
-    const allReviews = await ReviewsModel.find()
+    const sortBy = req.query.sortBy;
+    // console.log(sortBy);
+    const parameters = sortBy === "" ? null : { group: sortBy };
+    // console.log(parameters);
+    //
+    const allReviewsRaw = await ReviewsModel.find(parameters)
       .sort("createdAt")
       .populate("userId")
       .populate("ratingFive")
       .exec();
-    if (!allReviews) {
+    if (!allReviewsRaw) {
       return res.json({ message: "there arent reviews" });
     }
     const last6ReviewsRaw = await ReviewsModel.find()
@@ -89,10 +95,10 @@ export const getAllReviews = async (req, res) => {
       .sort("rating")
       .exec();
     const allUnicTags = [
-      ...new Set(allReviews.flatMap((review) => review.tags)),
+      ...new Set(allReviewsRaw.flatMap((review) => review.tags)),
     ];
-    const reviewsWithAvgRatingFive = await Promise.all(
-      allReviews.map(async (review) => {
+    const allReviews = await Promise.all(
+      allReviewsRaw.map(async (review) => {
         const avgRatingFive =
           review.ratingFive.reduce(
             (sum, rating) => sum + rating.ratingFive,
@@ -121,13 +127,17 @@ export const getAllReviews = async (req, res) => {
         return { ...review.toObject(), avgRatingFive };
       })
     );
+    const reviewsRatings = await RatingsModel.find({
+      reviewId: { $exists: true },
+    }).exec();
     // res.send({ reviewsWithAvgRatingFive });
     res.send({
       allUnicTags,
       allReviews,
       last6Reviews,
       pop6Reviews,
-      reviewsWithAvgRatingFive,
+      reviewsRatings,
+      // reviewsWithAvgRatingFive,
     });
   } catch (error) {
     res.status(500).json({ message: "Error in getAll reviews" });
@@ -151,7 +161,7 @@ export const getOneReview = async (req, res) => {
 
 export const getMyReviews = async (req, res) => {
   try {
-    console.log(req.body);
+    // console.log(req.body);
     const userId = req.user._id;
     if (!userId) {
       return res.status(401).json({ message: "Not authorised" });
