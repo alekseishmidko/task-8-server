@@ -7,7 +7,9 @@ import RatingsModel from "../models/Rating.js";
 // */
 export const createProduct = async (req, res) => {
   try {
+    console.log("createProduct", req.uploadedImageUrls);
     const { title, group } = req.body;
+    const { imgUrl } = req.files;
 
     const userId = req.user._id;
     if (!userId) {
@@ -23,6 +25,7 @@ export const createProduct = async (req, res) => {
       title,
       group,
       author: userId,
+      images: req.uploadedImageUrls,
     });
     const product = await newProduct.save();
     res.json({ product });

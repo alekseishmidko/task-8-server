@@ -11,6 +11,11 @@ const ProductsSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "UsersModel",
     },
+    images: [
+      {
+        type: String,
+      },
+    ],
     reviews: [
       {
         type: mongoose.Schema.Types.ObjectId,
