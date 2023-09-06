@@ -14,13 +14,11 @@ import { handleRatingProduct } from "../controllers/ratingController.js";
 productsRouter.post(
   "/create",
   auth,
-  upload.array("files", 4),
-  uploadImages,
+  // upload.array("files", 4),
+  // uploadImages,
   createProduct
 );
 //api/products/all
 productsRouter.get("/all", getAllProducts);
 //api/products/:id
 productsRouter.post("/:id", auth, handleRatingProduct);
-//api/products/test
-// productsRouter.post("/test", auth, createTest);

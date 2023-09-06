@@ -38,6 +38,11 @@ const ReviewsSchema = new mongoose.Schema(
         type: String,
       },
     ],
+    images: [
+      {
+        type: String,
+      },
+    ],
     comments: [
       {
         type: mongoose.Schema.Types.ObjectId,

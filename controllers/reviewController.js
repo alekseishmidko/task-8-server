@@ -36,11 +36,11 @@ const calcAverageRatingFive = (arr) => {
 };
 export const createReview = async (req, res) => {
   try {
-    const { title, group, rating, productId, content } = req.body;
+    const { title, group, rating, productId, content, images } = req.body;
     const userId = req.user._id;
     // Проверяем, существует ли уже обзор от этого пользователя для этого продукта
     const existingReview = await ReviewsModel.findOne({ productId, userId });
-
+    console.log(req.body);
     if (existingReview) {
       return res
         .status(400)
@@ -57,6 +57,8 @@ export const createReview = async (req, res) => {
       userId,
       tags: extractHashtags(content),
       rating,
+      images,
+      // images: req.uploadedImageUrls,
       //   likes,
       content,
     });
