@@ -15,4 +15,6 @@ const CommentsSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+// Создание текстового индекса для поля comment
+CommentsSchema.index({ comment: "text" });
 export default mongoose.model("CommentsModel", CommentsSchema);

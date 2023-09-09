@@ -57,4 +57,9 @@ const ReviewsSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+// Создание текстового индекса для полей title и content
+ReviewsSchema.index({
+  title: "text",
+  content: "text",
+});
 export default mongoose.model("ReviewsModel", ReviewsSchema);
