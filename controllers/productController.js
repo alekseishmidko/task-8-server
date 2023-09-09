@@ -1,6 +1,16 @@
 import ProductsModel from "../models/Products.js";
 import RatingsModel from "../models/Rating.js";
 
+const calcAverageRatingFive = (arr) => {
+  if (!arr || arr.length === 0) {
+    return 0;
+  }
+
+  const totalRating = arr.reduce((sum, item) => sum + item.ratingFive, 0);
+  const averageRating = totalRating / arr.length;
+
+  return averageRating;
+};
 // * @route POST /api/posts/create
 // * @desс  создание произведения
 // * @access auth
@@ -71,5 +81,18 @@ export const getAllProducts = async (req, res) => {
     res.status(200).send({ productsWithAvgRatingFive, productsRatings });
   } catch (error) {
     res.status(500).json({ message: "Error in getAll prod" });
+  }
+};
+
+export const getOneProduct = async (req, res) => {
+  try {
+    const product = await ProductsModel.findById(req.params.id).populate(
+      "ratingFive"
+    );
+    const ratingFive = product.ratingFive;
+    const averageRatingFive = calcAverageRatingFive(ratingFive);
+    res.send({ product, averageRatingFive });
+  } catch (error) {
+    res.status(500).json({ message: "Error in getOneProduct" });
   }
 };

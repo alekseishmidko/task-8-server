@@ -72,7 +72,7 @@ export const createReview = async (req, res) => {
 export const getAllReviews = async (req, res) => {
   try {
     const sortBy = req.query.sortBy;
-    // console.log(sortBy);
+    console.log(sortBy);
     const parameters = sortBy === "" ? null : { group: sortBy };
     // console.log(parameters);
     //
@@ -153,9 +153,11 @@ export const getOneReview = async (req, res) => {
     );
 
     const ratingFive = review.ratingFive;
-
+    const reviewsRatings = await RatingsModel.find({
+      reviewId: { $exists: true },
+    }).exec();
     const averageRatingFive = calcAverageRatingFive(ratingFive);
-    res.send({ review, averageRatingFive });
+    res.send({ review, averageRatingFive, reviewsRatings });
   } catch (error) {
     res.status(500).json({ message: "Error in getOneReview" });
   }
@@ -314,50 +316,3 @@ export const getReviewsByUser = async (req, res) => {
     res.status(500).json({ message: "Error in getReviewsByUser" });
   }
 };
-
-//
-// async function calculateAverageRating(reviews) {
-//   const updatedReviews = await Promise.all(
-//     reviews.map(async (review) => {
-//       const { ratingFive, _id } = review;
-
-//       if (ratingFive.length === 0) {
-//         return { ...review, averageRatingFive: 0 };
-//       }
-
-//       const ratingSum = ratingFive.reduce(
-//         (acc, rating) => acc + rating.ratingFive,
-//         0
-//       );
-//       const averageRating = ratingSum / ratingFive.length;
-
-//       // Обновляем поле averageRatingFive в базе данных
-//       await ReviewsModel.findByIdAndUpdate(_id, {
-//         averageRatingFive: averageRating,
-//       });
-
-//       return { ...review, averageRatingFive: averageRating };
-//     })
-//   );
-//   const answ = updatedReviews.map((item) => {
-//     return { rev: item._doc, averageRatingFive: item.averageRatingFive };
-//   });
-//   const answer2 = answ.map((item) => {
-//     // Получаем рейтинг из поля ratingFive и вычисляем среднее значение
-//     const ratingFive = item.rev.ratingFive;
-//     const averageRating =
-//       ratingFive.length > 0
-//         ? ratingFive.reduce((acc, current) => acc + current.ratingFive, 0) /
-//           ratingFive.length
-//         : 0;
-//     return item;
-//   });
-//   return answer2;
-// }
-// calculateAverageRating(userReviews)
-//   .then((updatedReviews) => {
-//     res.send(updatedReviews);
-//   })
-//   .catch((error) => {
-//     console.error(error);
-//   });

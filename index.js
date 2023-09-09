@@ -10,12 +10,12 @@ import { likesRouter } from "./routes/likesRouter.js";
 import { uploadRouter } from "./routes/uploadRouter.js";
 import upload from "./middleware/multer.js";
 import cloudinary from "./utils/cloudinary.js";
+import { commentsRouter } from "./routes/commentRouter.js";
 const app = express();
 dotenv.config();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
-// app.use("/uploads", express.static("uploads"));
 
 mongoose
   .connect(
@@ -40,3 +40,4 @@ app.use("/api/products/", productsRouter);
 app.use("/api/reviews/", reviewsRouter);
 app.use("/api/likes/", likesRouter);
 app.use("/api/upload/", uploadRouter);
+app.use("/api/comments/", commentsRouter);
