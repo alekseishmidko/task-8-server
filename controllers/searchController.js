@@ -11,13 +11,24 @@ export const searchReviews = async (req, res) => {
         { title: { $regex: query, $options: "i" } }, // Поиск в заголовках обзоров
         { content: { $regex: query, $options: "i" } }, // Поиск в содержании обзоров
       ],
-    });
+    }).populate();
 
     // Поиск среди комментариев
-    const comments = await CommentsModel.find({
-      comment: { $regex: query, $options: "i" }, // Поиск в содержании комментариев
-    });
+    const commentsRaw = await CommentsModel.find({
+      comment: { $regex: query, $options: "i" },
+    }).populate("reviewId");
 
+    const arr = commentsRaw.map((item) => {
+      return item.reviewId;
+    });
+    const uniqueIds = new Set();
+    const comments = arr.filter((item) => {
+      if (!uniqueIds.has(item._id)) {
+        uniqueIds.add(item._id);
+        return true;
+      }
+      return false;
+    });
     res.json({ reviews, comments });
   } catch (error) {
     res.status(500).json({ message: "Error in searchReviews" });

@@ -9,7 +9,7 @@ const CommentsSchema = new mongoose.Schema(
     },
     reviewId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "ReviewssModel",
+      ref: "ReviewsModel",
       required: true,
     },
   },
