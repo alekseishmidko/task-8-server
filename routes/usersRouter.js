@@ -7,6 +7,7 @@ import {
   getAllUsers,
   deleteUser,
   handleRoleUser,
+  getOneUserReviews,
 } from "../controllers/usersController.js";
 import { auth } from "../utils/auth.js";
 //api/users/signIn
@@ -21,3 +22,5 @@ usersRouter.get("/all", auth, getAllUsers);
 usersRouter.delete("/:id", auth, deleteUser);
 //api/users/:id
 usersRouter.put("/:id", auth, handleRoleUser);
+//api/users/:id
+usersRouter.get("/:id", auth, getOneUserReviews);

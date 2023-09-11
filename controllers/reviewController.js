@@ -36,7 +36,15 @@ const calcAverageRatingFive = (arr) => {
 };
 export const createReview = async (req, res) => {
   try {
-    const { title, group, rating, productId, content, images } = req.body;
+    const {
+      title,
+      group,
+      rating,
+      productId,
+      content,
+      images,
+      createByAdminId,
+    } = req.body;
     const userId = req.user._id;
     // Проверяем, существует ли уже обзор от этого пользователя для этого продукта
     const existingReview = await ReviewsModel.findOne({ productId, userId });
@@ -54,7 +62,7 @@ export const createReview = async (req, res) => {
       title,
       group,
       productId,
-      userId,
+      userId: createByAdminId === 0 ? userId : createByAdminId,
       tags: extractHashtags(content),
       rating,
       images,
@@ -220,7 +228,7 @@ export const updateReview = async (req, res) => {
     const user = req.user;
     const _id = req.params.id;
     // console.log(userId, "/", _id);
-    console.log(req.body.title, req.body.content, "body");
+    console.log(req.body.title, req.body.content, req.body.rating, "body");
     const { title, group, rating, content } = req.body;
     if (!userId) {
       return res.status(401).json({ message: "not authorised" });
@@ -233,7 +241,7 @@ export const updateReview = async (req, res) => {
         .status(404)
         .json({ message: "dont find review! (updateReview)" });
     }
-    // console.log(existingReview);
+
     //  проверка на роль
     if (
       user.role === "admin" ||

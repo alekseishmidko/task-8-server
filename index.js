@@ -54,7 +54,7 @@ server.listen(3001, (error) => {
 });
 // Обработка событий Socket.IO
 io.on("connection", (socket) => {
-  console.log(`A user connected ${socket.id}`);
+  // console.log(`A user connected ${socket.id}`);
 
   socket.on("comment", (data) => {
     console.log("comment data:", data);

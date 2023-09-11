@@ -3,17 +3,14 @@ import CommentsModel from "../models/Comments.js";
 export const searchReviews = async (req, res) => {
   try {
     const query = req.query.q;
-    console.log(query);
-    // Используйте Mongoose для выполнения поиска
+    // console.log(query);
     // const results = await ReviewsModel.find({ $text: { $search: query } });
     const reviews = await ReviewsModel.find({
       $or: [
-        { title: { $regex: query, $options: "i" } }, // Поиск в заголовках обзоров
-        { content: { $regex: query, $options: "i" } }, // Поиск в содержании обзоров
+        { title: { $regex: query, $options: "i" } },
+        { content: { $regex: query, $options: "i" } },
       ],
     }).populate();
-
-    // Поиск среди комментариев
     const commentsRaw = await CommentsModel.find({
       comment: { $regex: query, $options: "i" },
     }).populate("reviewId");

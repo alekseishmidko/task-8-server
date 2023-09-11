@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import UsersModel from "../models/Users.js";
-
+import ReviewsModel from "../models/Reviews.js";
 // * @route POST /api/users/login
 // * @desс Логин
 // * @access Public
@@ -179,5 +179,33 @@ export const handleRoleUser = async (req, res) => {
     }
   } catch (error) {
     res.status(500).json({ message: "Error in handleRole" });
+  }
+};
+export const getOneUserReviews = async (req, res) => {
+  try {
+    const user = req.user;
+    const userId = req.user.id; // admin data
+    if (user.role === "user") {
+      return res.status(404).json({
+        message: "dont authorised for this operation! (getOneUserReviews)",
+      });
+    }
+    const _id = req.params.id; // user data
+    const findUser = await UsersModel.findById(_id);
+    console.log(findUser, "findUser", findUser.role, "role");
+    if (!findUser) {
+      return res
+        .status(404)
+        .json({ message: "dont find user! (getOneUserReviews)" });
+    }
+    if (findUser.role === "superadmin") {
+      return res.status(404).json({
+        message: "dont authorised for this operation! (getOneUserReviews)",
+      });
+    }
+    const oneUserReviews = await ReviewsModel.find({ userId: _id });
+    res.status(200).send({ oneUserReviews });
+  } catch (error) {
+    res.status(500).json({ message: "Error in getOneUserReviews" });
   }
 };
