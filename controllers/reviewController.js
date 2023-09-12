@@ -324,3 +324,22 @@ export const getReviewsByUser = async (req, res) => {
     res.status(500).json({ message: "Error in getReviewsByUser" });
   }
 };
+
+export const getRelatedReviews = async (req, res) => {
+  try {
+    const { productId } = req.body;
+
+    const reviewId = req.params.id;
+    console.log(reviewId, productId);
+    const relatedReviewsRaw = await ReviewsModel.find({ productId });
+    const relatedReviews = relatedReviewsRaw.filter(
+      (item) => item._id.toString() !== reviewId
+    );
+    if (relatedReviews.length > 4) {
+      relatedReviews = relatedReviews.slice(0, 4);
+    }
+    res.status(200).send({ relatedReviews });
+  } catch (error) {
+    res.status(500).json({ message: "Error in getReviewsByUser" });
+  }
+};

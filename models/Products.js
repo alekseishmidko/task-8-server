@@ -20,6 +20,7 @@ const ProductsSchema = new mongoose.Schema(
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "ReviewsModel",
+        required: true,
       },
     ],
 
