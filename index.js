@@ -13,6 +13,7 @@ import http from "http";
 import { Server } from "socket.io"; // Импортируем Server из socket.io
 import * as socketIO from "socket.io";
 import { searchRouter } from "./routes/searchRouter.js";
+import { handleError } from "./utils/errors.js";
 const app = express();
 dotenv.config();
 app.use(express.json());
@@ -37,6 +38,8 @@ app.use("/api/likes/", likesRouter);
 app.use("/api/upload/", uploadRouter);
 app.use("/api/comments/", commentsRouter);
 app.use("/api/search/", searchRouter);
+app.use(handleError);
+
 // socket
 const server = http.createServer(app);
 const io = new Server(server, {

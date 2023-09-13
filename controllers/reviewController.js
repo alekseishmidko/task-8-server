@@ -1,6 +1,7 @@
 import ReviewsModel from "../models/Reviews.js";
 import UsersModel from "../models/Users.js";
 import RatingsModel from "../models/Rating.js";
+import { NotFoundException } from "../utils/errors.js";
 function extractHashtags(inputString) {
   // const words = inputString.split(/\s+/); // Разбиваем строку на слова
   // const hashtags = [];
@@ -172,54 +173,48 @@ export const getOneReview = async (req, res) => {
 };
 
 export const getMyReviews = async (req, res) => {
-  try {
-    // console.log(req.body);
-    const userId = req.user._id;
-    if (!userId) {
-      return res.status(401).json({ message: "Not authorised" });
-    }
-    const user = await UsersModel.findById(userId);
-    if (!user) {
-      return res
-        .status(404)
-        .json({ message: "Not found a user! (getMyReviews)" });
-    }
-    const userReviews = await ReviewsModel.find({ userId })
-      .populate("ratingFive")
-      .populate("productId");
-    const newData = userReviews.map((item) => {
-      const ratingFive = item.ratingFive;
-      if (ratingFive.length > 0) {
-        const totalRating = ratingFive.reduce(
-          (sum, rating) => sum + rating.ratingFive,
-          0
-        );
-        const averageRating = (totalRating / ratingFive.length).toFixed(1);
-        return { ...item, averageRatingFive: averageRating };
-      } else {
-        return { ...item, averageRatingFive: 0 };
-      }
-    });
-    const arr = newData.map((item) => {
-      return item._doc;
-    });
-    const aver = newData.map((item) => {
-      return { averageRatingFive: item.averageRatingFive };
-    });
-    const combinedData = arr
-      .map((item, index) => ({
-        ...item,
-        ...aver[index],
-      }))
-      .map((item) => ({
-        ...item,
-        productTitle: item.productId.title,
-      }));
-    res.send(combinedData);
-    // res.send(userReviews);
-  } catch (error) {
-    res.status(500).json({ message: "Error in getMyReviews" });
+  // console.log(req.body);
+  const userId = req.user._id;
+  if (!userId) {
+    return res.status(401).json({ message: "Not authorised" });
   }
+  const user = await UsersModel.findById(userId);
+  if (!user) {
+    throw new NotFoundException("Not found a user! (getMyReviews)");
+  }
+  const userReviews = await ReviewsModel.find({ userId })
+    .populate("ratingFive")
+    .populate("productId");
+  const newData = userReviews.map((item) => {
+    const ratingFive = item.ratingFive;
+    if (ratingFive.length > 0) {
+      const totalRating = ratingFive.reduce(
+        (sum, rating) => sum + rating.ratingFive,
+        0
+      );
+      const averageRating = (totalRating / ratingFive.length).toFixed(1);
+      return { ...item, averageRatingFive: averageRating };
+    } else {
+      return { ...item, averageRatingFive: 0 };
+    }
+  });
+  const arr = newData.map((item) => {
+    return item._doc;
+  });
+  const aver = newData.map((item) => {
+    return { averageRatingFive: item.averageRatingFive };
+  });
+  const combinedData = arr
+    .map((item, index) => ({
+      ...item,
+      ...aver[index],
+    }))
+    .map((item) => ({
+      ...item,
+      productTitle: item.productId.title,
+    }));
+  res.send(combinedData);
+  // res.send(userReviews);
 };
 
 export const updateReview = async (req, res) => {

@@ -7,16 +7,16 @@ export const handleLike = async (req, res) => {
   console.log(userId, reviewId);
   const existingLike = await LikesModel.findOne({ reviewId, userId });
   console.log(existingLike, "exs like");
-  if (existingLike === null) {
+  if (existingLike?._id) {
+    const deleted = await LikesModel.deleteOne({ _id: existingLike._id });
+    res.status(201).send(deleted);
+  } else {
     const newLike = await LikesModel({
       userId,
       reviewId,
     });
     const like = await newLike.save();
     res.status(201).send({ like });
-  } else {
-    const deleted = await LikesModel.deleteOne({ _id: existingLike._id });
-    res.status(201).send(deleted);
   }
 };
 export const likesCount = async (req, res) => {

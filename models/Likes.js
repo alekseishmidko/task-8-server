@@ -17,36 +17,44 @@ const LikesSchema = new mongoose.Schema(
 );
 
 // middleware по поставке лайка или убору лайка с поста
-
 LikesSchema.pre("save", async function (next) {
-  // console.log(this.reviewId, "thius");
+  console.log(this, "this");
   if (this.reviewId) {
     const models = this;
     const review = await models
       .model("ReviewsModel")
       .findById({ _id: this.reviewId });
-    review.likes = review.likes + 1;
-    await review.save();
+
+    if (review) {
+      // Проверка, что review не равно null
+      review.likes = review.likes + 1;
+      await review.save();
+    }
   }
 
   next();
 });
 LikesSchema.pre("deleteOne", async function (next) {
-  console.log(this, "thius");
-  const models = this;
-  const like = await this.model.findById(this.getQuery());
-  // console.log(like, "like");
+  try {
+    console.log(this, "thius");
+    const models = this;
+    const like = await this.model.findById(this.getQuery());
+    // console.log(like, "like");
 
-  if (like.reviewId) {
-    const review = await ReviewsModel.findById({ _id: like.reviewId });
-    console.log(review, "review");
-    if (review._id) {
-      review.likes = review.likes - 1 <= 0 ? 0 : review.likes - 1;
+    if (like.reviewId) {
+      const review = await ReviewsModel.findById({ _id: like.reviewId });
+      console.log(review, "review");
+      if (review && review?._id) {
+        review.likes = review.likes - 1 <= 0 ? 0 : review.likes - 1;
 
-      await review.save();
+        await review.save();
+      }
     }
+    next();
+  } catch (error) {
+    console.log(error);
+    next();
   }
-  next();
 });
 // LikesSchema.index({ userId: 1, reviews: 1 }, { unique: true }); // Уникальный индекс для предотвращения повторных лайков
 export default mongoose.model("LikesModel", LikesSchema);

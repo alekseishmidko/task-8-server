@@ -89,9 +89,12 @@ export const getOneProduct = async (req, res) => {
     const product = await ProductsModel.findById(req.params.id).populate(
       "ratingFive"
     );
+    const productsRatings = await RatingsModel.find({
+      productId: { $exists: true },
+    }).exec();
     const ratingFive = product.ratingFive;
     const averageRatingFive = calcAverageRatingFive(ratingFive);
-    res.send({ product, averageRatingFive });
+    res.send({ product, averageRatingFive, productsRatings });
   } catch (error) {
     res.status(500).json({ message: "Error in getOneProduct" });
   }
