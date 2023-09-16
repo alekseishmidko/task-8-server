@@ -209,3 +209,89 @@ export const getOneUserReviews = async (req, res) => {
     res.status(500).json({ message: "Error in getOneUserReviews" });
   }
 };
+
+/**
+ * @route POST /api/users/google
+ * @desс Регистрация
+ * @access Public
+ */
+export const signUpGoogle = async (req, res) => {
+  try {
+    const { email, id, picture, verified_email, name } = req.body;
+
+    if (!email || !id || !name) {
+      return res
+        .status(400)
+        .json({ message: "Something is wrong with the request data" });
+    }
+
+    if (verified_email === false) {
+      return res.status(400).json({ message: "Unverified email" });
+    }
+
+    const existingUser = await UsersModel.findOne({ email });
+
+    if (existingUser) {
+      // Если пользователь существует, проверьте пароль
+      const isPasswordValid = await bcrypt.compare(id, existingUser.password);
+
+      if (isPasswordValid) {
+        // Пароль совпадает, создайте и отправьте токен
+        const token = jwt.sign({ id: existingUser.id }, process.env.SECRET, {
+          expiresIn: "1d",
+        });
+        res.status(200).json({
+          user: {
+            _id: existingUser._id,
+            email: existingUser.email,
+            name: existingUser.name,
+            key: existingUser.key,
+            role: existingUser.role,
+            avatarUrl: existingUser.avatarUrl,
+          },
+          token,
+        });
+      } else {
+        // Пароль не совпадает
+        return res.status(401).json({ message: "Incorrect password" });
+      }
+    } else {
+      // Пользователь не существует, создайте его
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(id, salt);
+
+      const newUser = await UsersModel({
+        email,
+        name,
+        password: hashedPassword,
+        key: Date.now(),
+        role: "user",
+        avatarUrl: picture,
+      });
+
+      const user = await newUser.save();
+
+      if (user) {
+        const token = jwt.sign({ id: user.id }, process.env.SECRET, {
+          expiresIn: "1d",
+        });
+        res.status(201).json({
+          user: {
+            _id: user._id,
+            email: user.email,
+            name: user.name,
+            key: user.key,
+            role: user.role,
+            avatarUrl: user.avatarUrl,
+          },
+          token,
+        });
+      } else {
+        return res.status(400).json({ message: "Failed to create the user" });
+      }
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error in sign up Google" });
+  }
+};

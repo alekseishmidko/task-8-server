@@ -1,16 +1,18 @@
 import { mongoose } from "mongoose";
 import ReviewsModel from "./Reviews.js";
-const { model } = mongoose;
+// const { model } = mongoose;
+import { model } from "mongoose";
 const LikesSchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "UsersModel",
-      // required: true,
+      required: true,
     },
     reviewId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "ReviewsModel",
+      required: true,
     },
   },
   { timestamps: true }
@@ -39,7 +41,7 @@ LikesSchema.pre("deleteOne", async function (next) {
     console.log(this, "thius");
     const models = this;
     const like = await this.model.findById(this.getQuery());
-    // console.log(like, "like");
+    console.log(like, "like");
 
     if (like.reviewId) {
       const review = await ReviewsModel.findById({ _id: like.reviewId });
@@ -56,6 +58,47 @@ LikesSchema.pre("deleteOne", async function (next) {
     next();
   }
 });
-// LikesSchema.index({ userId: 1, reviews: 1 }, { unique: true }); // Уникальный индекс для предотвращения повторных лайков
+// LikesSchema.pre("save", async function (next) {
+//   if (this.reviewId) {
+//     const existingLike = await this.model("LikesModel").findOne({
+//       reviewId: this.reviewId,
+//       userId: this.userId,
+//     });
+
+//     if (!existingLike) {
+//       const review = await this.model("ReviewsModel").findById({
+//         _id: this.reviewId,
+//       });
+
+//       if (review) {
+//         review.likes = review.likes + 1;
+//         await review.save();
+//       }
+//     }
+//   }
+
+//   next();
+// });
+
+// LikesSchema.pre("deleteOne", async function (next) {
+//   try {
+//     const like = await this.model.findOne(this.getQuery());
+
+//     if (like && like.reviewId) {
+//       const review = await ReviewsModel.findById({ _id: like.reviewId });
+
+//       if (review && review._id) {
+//         review.likes = Math.max(0, review.likes - 1); // Убедимся, что likes не меньше 0
+//         await review.save();
+//       }
+//     }
+
+//     next();
+//   } catch (error) {
+//     console.error(error);
+//     next();
+//   }
+// });
+
 export default mongoose.model("LikesModel", LikesSchema);
 //  Likes каждый авторизованный пользователь может поставить лайк обзору (не более 1 лайка от юзера на обзор)

@@ -4,8 +4,8 @@ export const auth = async (req, res, next) => {
   try {
     // отсеиваем от bearer
 
-    let token = req.headers.authorization?.split(" ")[1];
-    // let token = req.headers.authorization;
+    // let token = req.headers.authorization?.split(" ")[1];
+    let token = req.headers.authorization;
     // console.log(token, "token");
     const decoded = jwt.verify(token, process.env.SECRET);
     const user = await Users.findById(decoded.id);

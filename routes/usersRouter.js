@@ -8,6 +8,7 @@ import {
   deleteUser,
   handleRoleUser,
   getOneUserReviews,
+  signUpGoogle,
 } from "../controllers/usersController.js";
 import { auth } from "../utils/auth.js";
 //api/users/signIn
@@ -24,3 +25,5 @@ usersRouter.delete("/:id", auth, deleteUser);
 usersRouter.put("/:id", auth, handleRoleUser);
 //api/users/:id
 usersRouter.get("/:id", auth, getOneUserReviews);
+//api/users/google
+usersRouter.post("/google", signUpGoogle);
