@@ -1,13 +1,14 @@
 import LikesModel from "../models/Likes.js";
-
+import ReviewsModel from "../models/Reviews.js";
 export const handleLike = async (req, res) => {
   const userId = req.user.id;
 
   const reviewId = req.params.id;
-  console.log(userId, reviewId);
+  console.log(userId, reviewId, "body");
   const existingLike = await LikesModel.findOne({ reviewId, userId });
-  console.log(existingLike, "exs like");
-  if (existingLike?._id) {
+  const existingReview = await ReviewsModel.findOne({ _id: reviewId });
+  console.log(existingLike, "exs like", existingReview, "ex rev");
+  if (existingLike && existingLike?._id) {
     const deleted = await LikesModel.deleteOne({ _id: existingLike._id });
     res.status(201).send(deleted);
   } else {
@@ -15,58 +16,17 @@ export const handleLike = async (req, res) => {
       userId,
       reviewId,
     });
+    console.log(newLike, "new like");
     const like = await newLike.save();
     res.status(201).send({ like });
   }
 };
-// export const handleLike = async (req, res) => {
-//   const userId = req.user.id;
-//   const reviewId = req.params.id;
 
-//   const existingLike = await LikesModel.findOne({ reviewId, userId });
-
-//   if (existingLike?._id) {
-//     await LikesModel.deleteOne({ _id: existingLike._id });
-//     res.status(201).send({ message: "Like removed" });
-//   } else {
-//     const newLike = await LikesModel({
-//       userId,
-//       reviewId,
-//     });
-
-//     await newLike.save();
-//     res.status(201).send({ message: "Like added" });
-//   }
-// };
-// export const handleLike = async (req, res) => {
-//   const userId = req.user.id;
-//   const reviewId = req.params.id;
-//   console.log(userId, "userId", reviewId, "reviewId");
-
-//   if (!userId || !reviewId) {
-//     return res.status(400).send({ message: "Invalid user or review ID" });
-//   }
-
-//   const existingLike = await LikesModel.findOne({ reviewId, userId });
-
-//   if (existingLike?._id) {
-//     await LikesModel.deleteOne({ _id: existingLike._id });
-//     return res.status(201).send({ message: "Like removed" });
-//   } else {
-//     const newLike = await LikesModel({
-//       userId,
-//       reviewId,
-//     });
-
-//     await newLike.save();
-//     return res.status(201).send({ message: "Like added" });
-//   }
-// };
 export const likesCount = async (req, res) => {
   try {
     const userId = req.user.id;
     const reviewId = req.params.id;
-    const likes = await LikesModel.find({ reviewId: reviewId });
+    const likes = await LikesModel.find({ userId: userId });
     if (!likes) {
       return res.status(304).json({ message: "likes is empty" });
     }
@@ -76,14 +36,15 @@ export const likesCount = async (req, res) => {
     res.status(500).json({ message: "Error in likesCount" });
   }
 };
-// export const AllLikes = async (req, res) => {
-//   try {
-//     const allLikes = await LikesModel.find();
-//     if (!allLikes) {
-//       return res.status(304).json({ message: "likes is empty" });
-//     }
-//     res.status(200).send({ AllLikes });
-//   } catch (error) {
-//     res.status(500).json({ message: "Error in AllLikes" });
-//   }
-// };
+export const allLikes = async (req, res) => {
+  try {
+    const allLikes = await LikesModel.find().exec();
+    console.log(allLikes);
+    if (!allLikes) {
+      return res.status(304).json({ message: "likes is empty" });
+    }
+    res.status(200).send(allLikes);
+  } catch (error) {
+    res.status(500).json({ message: "Error in AllLikes" });
+  }
+};

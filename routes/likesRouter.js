@@ -4,8 +4,14 @@ export const likesRouter = express.Router();
 
 import { auth } from "../utils/auth.js";
 
-import { handleLike, likesCount } from "../controllers/likesController.js";
+import {
+  allLikes,
+  handleLike,
+  likesCount,
+} from "../controllers/likesController.js";
 //api/likes/:id
 likesRouter.post("/:id", auth, errorWrap(handleLike));
+//api/likes/:id
+likesRouter.get("/", auth, likesCount);
 //api/likes/
-likesRouter.get("/:id", auth, likesCount);
+likesRouter.get("/all", allLikes);

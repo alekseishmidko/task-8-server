@@ -8,11 +8,13 @@ const LikesSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "UsersModel",
       required: true,
+      unique: false,
     },
     reviewId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "ReviewsModel",
       required: true,
+      unique: false,
     },
   },
   { timestamps: true }
@@ -23,6 +25,7 @@ LikesSchema.pre("save", async function (next) {
   console.log(this, "this");
   if (this.reviewId) {
     const models = this;
+    console.log(model, "model");
     const review = await models
       .model("ReviewsModel")
       .findById({ _id: this.reviewId });
@@ -39,6 +42,7 @@ LikesSchema.pre("save", async function (next) {
 LikesSchema.pre("deleteOne", async function (next) {
   try {
     console.log(this, "thius");
+    console.log(model, "model");
     const models = this;
     const like = await this.model.findById(this.getQuery());
     console.log(like, "like");
@@ -58,6 +62,9 @@ LikesSchema.pre("deleteOne", async function (next) {
     next();
   }
 });
+
+//
+//
 // LikesSchema.pre("save", async function (next) {
 //   if (this.reviewId) {
 //     const existingLike = await this.model("LikesModel").findOne({
