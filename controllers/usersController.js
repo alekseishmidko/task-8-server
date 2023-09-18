@@ -13,7 +13,11 @@ export const signIn = async (req, res) => {
       return res.status(400).json({ message: "enter all forms" });
     }
     const user = await UsersModel.findOne({ email });
-
+    if (user.status === "disabled") {
+      return res
+        .status(400)
+        .json({ message: "Your account was disabled by admin!" });
+    }
     // сравнение пароля и хешпароля
     const isPasswordCorrect =
       user && (await bcrypt.compare(password, user.password));
@@ -28,6 +32,7 @@ export const signIn = async (req, res) => {
           key: user.key,
           role: user.role,
           avatarUrl: user.avatarUrl,
+          status: user.status,
         },
         token: jwt.sign({ id: user.id }, secret, { expiresIn: "1d" }),
       });
@@ -73,6 +78,7 @@ export const signUp = async (req, res) => {
       password: hashedPassword,
       key: Date.now(),
       // role: "superadmin",
+      status: "active",
       role: "user",
       avatarUrl: req.body.avatarUrl,
     });
@@ -181,6 +187,35 @@ export const handleRoleUser = async (req, res) => {
     res.status(500).json({ message: "Error in handleRole" });
   }
 };
+
+export const handleStatusUser = async (req, res) => {
+  try {
+    const user = req.user;
+    const userId = req.user.id;
+    const _id = req.params.id;
+    const findUser = await UsersModel.findById(_id);
+    const newStatus = findUser.status === "active" ? "disabled" : "active";
+    if (!findUser) {
+      return res
+        .status(404)
+        .json({ message: "dont find user! (handleStatusUser)" });
+    }
+    if (
+      (user.role === "admin" && userId !== _id) ||
+      (user.role === "superadmin" && userId !== _id)
+    ) {
+      if (findUser.role === "user") {
+        findUser.status = newStatus;
+      }
+      await findUser.save();
+      res.status(200).json({ message: "User status is succesfully updated" });
+    } else {
+      res.status(401).json({ message: "not authorised!" });
+    }
+  } catch (error) {
+    res.status(500).json({ message: "Error in handleStatusUser" });
+  }
+};
 export const getOneUserReviews = async (req, res) => {
   try {
     const user = req.user;
@@ -215,6 +250,7 @@ export const getOneUserReviews = async (req, res) => {
  * @desс Регистрация
  * @access Public
  */
+
 export const signUpGoogle = async (req, res) => {
   try {
     const { email, id, picture, verified_email, name } = req.body;
@@ -295,3 +331,89 @@ export const signUpGoogle = async (req, res) => {
     res.status(500).json({ message: "Error in sign up Google" });
   }
 };
+// export const signUpGoogle = async (req, res) => {
+//   try {
+//     const { email, id, picture, verified_email, name } = req.body;
+
+//     if (!email || !id || !name) {
+//       return res
+//         .status(400)
+//         .json({ message: "Something is wrong with the request data" });
+//     }
+
+//     if (verified_email === false) {
+//       return res.status(400).json({ message: "Unverified email" });
+//     }
+
+//     const existingUser = await UsersModel.findOne({ email });
+//     if (existingUser?.status === "disabled") {
+//       return res.status(401).json({ message: "user Disabled" });
+//     }
+//     if (existingUser) {
+//       // Если пользователь существует, проверьте пароль
+//       const isPasswordValid = await bcrypt.compare(id, existingUser.password);
+
+//       console.log(existingUser, "ex User");
+//       if (isPasswordValid) {
+//         // Пароль совпадает, создайте и отправьте токен
+//         const token = jwt.sign({ id: existingUser.id }, process.env.SECRET, {
+//           expiresIn: "1d",
+//         });
+//         res.status(200).json({
+//           user: {
+//             _id: existingUser._id,
+//             email: existingUser.email,
+//             name: existingUser.name,
+//             key: existingUser.key,
+//             role: existingUser.role,
+//             status: existingUser.status,
+//             avatarUrl: existingUser.avatarUrl,
+//           },
+//           token,
+//         });
+//       } else {
+//         // Пароль не совпадает
+//         return res.status(401).json({ message: "Incorrect password" });
+//       }
+//     } else {
+//       // Пользователь не существует, создайте его
+//       const salt = await bcrypt.genSalt(10);
+//       const hashedPassword = await bcrypt.hash(id, salt);
+
+//       const newUser = await UsersModel({
+//         email,
+//         name,
+//         password: hashedPassword,
+//         key: Date.now(),
+//         role: "user",
+//         status: "active",
+//         avatarUrl: picture,
+//       });
+
+//       const user = await newUser.save();
+
+//       if (user) {
+//         const token = jwt.sign({ id: user.id }, process.env.SECRET, {
+//           expiresIn: "1d",
+//         });
+//         res.status(201).json({
+//           user: {
+//             _id: user._id,
+//             email: user.email,
+//             name: user.name,
+//             key: user.key,
+//             role: user.role,
+//             avatarUrl: user.avatarUrl,
+//             status: user.status,
+//           },
+//           token,
+//         });
+//       } else {
+//         return res.status(400).json({ message: "Failed to create the user" });
+//       }
+//     }
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ message: "Error in sign up Google" });
+//   }
+// };

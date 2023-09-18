@@ -46,10 +46,11 @@ export const createReview = async (req, res) => {
       images,
       createByAdminId,
     } = req.body;
+    console.log(req.body);
     const userId = req.user._id;
     // Проверяем, существует ли уже обзор от этого пользователя для этого продукта
     const existingReview = await ReviewsModel.findOne({ productId, userId });
-    console.log(req.body);
+    console.log(req.body, userId);
     if (existingReview) {
       return res
         .status(400)
@@ -97,7 +98,7 @@ export const getAllReviews = async (req, res) => {
       .limit(6)
       .populate("userId")
       .populate("ratingFive")
-      .sort("-createdAt")
+      .sort("createdAt")
       .exec();
     const pop6ReviewsRaw = await ReviewsModel.find()
       .limit(6)
@@ -128,7 +129,7 @@ export const getAllReviews = async (req, res) => {
         return { ...review.toObject(), avgRatingFive };
       })
     );
-    const pop6Reviews = await Promise.all(
+    const pop6ReviewsWithAvgRatFive = await Promise.all(
       pop6ReviewsRaw.map(async (review) => {
         const avgRatingFive =
           review.ratingFive.reduce(
@@ -137,6 +138,9 @@ export const getAllReviews = async (req, res) => {
           ) / review.ratingFive.length;
         return { ...review.toObject(), avgRatingFive };
       })
+    );
+    const pop6Reviews = pop6ReviewsWithAvgRatFive.sort(
+      (a, b) => b.avgRatingFive - a.avgRatingFive
     );
     const reviewsRatings = await RatingsModel.find({
       reviewId: { $exists: true },
@@ -222,13 +226,13 @@ export const updateReview = async (req, res) => {
     const userId = req.user.id;
     const user = req.user;
     const _id = req.params.id;
-    // console.log(userId, "/", _id);
-    console.log(req.body.title, req.body.content, req.body.rating, "body");
+    console.log(userId, "userId", _id);
+    console.log(req.body.title, "body");
     const { title, group, rating, content } = req.body;
     if (!userId) {
       return res.status(401).json({ message: "not authorised" });
     }
-    //
+
     const existingReview = await ReviewsModel.findOne({ _id });
     console.log(existingReview, "existingReview");
     if (!existingReview) {
@@ -254,7 +258,7 @@ export const updateReview = async (req, res) => {
 
       res.status(200).json({ message: "Review is succesfully updated" });
     } else {
-      res.status(401).json({ message: "not authorised!" });
+      res.status(401).json({ message: "not authorised! 234" });
     }
   } catch (error) {
     res.status(500).json({ message: "Error in updateReview" });
