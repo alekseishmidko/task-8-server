@@ -267,6 +267,9 @@ export const signUpGoogle = async (req, res) => {
 
     const existingUser = await UsersModel.findOne({ email });
 
+    if (existingUser?.status === "disabled") {
+      return res.status(401).json({ message: "user Disabled" });
+    }
     if (existingUser) {
       // Если пользователь существует, проверьте пароль
       const isPasswordValid = await bcrypt.compare(id, existingUser.password);

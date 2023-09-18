@@ -26,7 +26,8 @@ usersRouter.delete("/:id", auth, deleteUser);
 usersRouter.put("/:id", auth, handleRoleUser);
 //api/users/:id
 usersRouter.get("/:id", auth, getOneUserReviews);
-//api/users/:id
-usersRouter.post("/:id", auth, handleStatusUser);
+
 //api/users/google
 usersRouter.post("/google", signUpGoogle);
+//api/users/:id
+usersRouter.post("/status/:id", auth, handleStatusUser);

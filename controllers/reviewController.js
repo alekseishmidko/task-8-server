@@ -3,22 +3,12 @@ import UsersModel from "../models/Users.js";
 import RatingsModel from "../models/Rating.js";
 import { NotFoundException } from "../utils/errors.js";
 function extractHashtags(inputString) {
-  // const words = inputString.split(/\s+/); // Разбиваем строку на слова
-  // const hashtags = [];
-
-  // words.forEach((word) => {
-  //   if (word.startsWith("#")) {
-  //     hashtags.push(word.substring()); // Удаляем символ #
-  //   }
-  // });
-
-  // return hashtags;
   const words = inputString.split(/\s+/); // Разбиваем строку на слова
   const hashtags = new Set(); // Используем Set для уникальных значений
 
   words.forEach((word) => {
     if (word.startsWith("#")) {
-      const hashtag = word.substring(); // Удаляем символ #
+      const hashtag = word.substring().toLowerCase(); // Удаляем символ #
       hashtags.add(hashtag);
     }
   });
@@ -46,32 +36,34 @@ export const createReview = async (req, res) => {
       images,
       createByAdminId,
     } = req.body;
-    console.log(req.body);
+
     const userId = req.user._id;
+    const a = createByAdminId === 0 ? userId : createByAdminId;
+    console.log(a, "a");
     // Проверяем, существует ли уже обзор от этого пользователя для этого продукта
-    const existingReview = await ReviewsModel.findOne({ productId, userId });
-    console.log(req.body, userId);
+    const existingReview = await ReviewsModel.findOne({ productId, userId: a });
+    console.log(req.body, userId, existingReview, "exRev");
     if (existingReview) {
       return res
         .status(400)
         .json({ message: "You have already left a review for this product!" });
     }
 
-    if (!userId) {
+    if (!userId || req.user.role === "user") {
       return res.status(401).json({ message: "Not authorised" });
     }
+    console.log(">>>>");
     const newReview = await ReviewsModel({
-      title,
-      group,
-      productId,
+      title: title,
+      group: group,
+      productId: productId,
       userId: createByAdminId === 0 ? userId : createByAdminId,
       tags: extractHashtags(content),
       rating,
       images,
-      // images: req.uploadedImageUrls,
-      //   likes,
       content,
     });
+    console.log(newReview, "NewReview");
     const review = await newReview.save();
     res.send({ review });
   } catch (error) {
