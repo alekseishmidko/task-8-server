@@ -238,8 +238,10 @@ export const getOneUserReviews = async (req, res) => {
         message: "dont authorised for this operation! (getOneUserReviews)",
       });
     }
+    const findUserName = findUser.name;
+    const findUserRole = findUser.role;
     const oneUserReviews = await ReviewsModel.find({ userId: _id });
-    res.status(200).send({ oneUserReviews });
+    res.status(200).send({ oneUserReviews, findUserName, findUserRole });
   } catch (error) {
     res.status(500).json({ message: "Error in getOneUserReviews" });
   }

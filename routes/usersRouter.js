@@ -11,6 +11,7 @@ import {
   signUpGoogle,
   handleStatusUser,
 } from "../controllers/usersController.js";
+import { handleError } from "../utils/errors.js";
 import { auth } from "../utils/auth.js";
 //api/users/signIn
 usersRouter.post("/signIn", signIn);

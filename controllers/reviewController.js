@@ -8,7 +8,10 @@ function extractHashtags(inputString) {
 
   words.forEach((word) => {
     if (word.startsWith("#")) {
-      const hashtag = word.substring().toLowerCase(); // Удаляем символ #
+      const hashtag = word
+        .substring()
+        .toLowerCase()
+        .replace(/[.,\/!$%\^&\*;:{}=\-_`~()]/g, ""); // Удаляем символы #
       hashtags.add(hashtag);
     }
   });
