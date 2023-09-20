@@ -2,6 +2,8 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import UsersModel from "../models/Users.js";
 import ReviewsModel from "../models/Reviews.js";
+import dotenv from "dotenv";
+dotenv.config();
 // * @route POST /api/users/login
 // * @desс Логин
 // * @access Public
@@ -64,10 +66,10 @@ export const signUp = async (req, res) => {
         .status(400)
         .json({ message: "email is exiting yet!(sign Up)" });
     }
-
+    console.log("salt");
     // Salt это строка для большей защиты пароля
-    const salt = await bcrypt.genSalt(process.env.SALT);
-
+    const salt = await bcrypt.genSalt(10);
+    console.log(salt);
     // кодирую пароль с помощью bcrypt c помощью соли
     const hashedPassword = await bcrypt.hash(password, salt);
 
