@@ -21,9 +21,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 mongoose
-  .connect(
-    "mongodb+srv://alex:1234@cluster0.gle9jsl.mongodb.net/?retryWrites=true&w=majority"
-  )
+  .connect(process.env.MONGO_DB_URL)
   .then(() => {
     console.log("DB is active!");
   })
@@ -60,11 +58,11 @@ io.on("connection", (socket) => {
   // console.log(`A user connected ${socket.id}`);
 
   socket.on("comment", (data) => {
-    console.log("comment data:", data);
+    // console.log("comment data:", data);
     io.emit("responce", data);
   });
   socket.on("disconnect", () => {
-    console.log("A user disconnected");
+    // console.log("A user disconnected");
   });
 });
 

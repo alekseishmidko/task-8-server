@@ -66,7 +66,7 @@ export const signUp = async (req, res) => {
     }
 
     // Salt это строка для большей защиты пароля
-    const salt = await bcrypt.genSalt(10);
+    const salt = await bcrypt.genSalt(process.env.SALT);
 
     // кодирую пароль с помощью bcrypt c помощью соли
     const hashedPassword = await bcrypt.hash(password, salt);
