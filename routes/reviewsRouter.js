@@ -19,14 +19,7 @@ import { errorWrap } from "../utils/errors.js";
 //api/reviews/upload
 reviewsRouter.post("/upload", upload.array("files", 4), uploadImages);
 //api/reviews/create
-reviewsRouter.post(
-  "/create",
-
-  // upload.array("files", 4),
-  // uploadImages
-  auth,
-  createReview
-);
+reviewsRouter.post("/create", auth, createReview);
 //api/reviews/all
 reviewsRouter.get("/all", getAllReviews);
 //api/reviews/:id

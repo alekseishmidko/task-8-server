@@ -52,8 +52,8 @@ export const createReview = async (req, res) => {
         .json({ message: "You have already left a review for this product!" });
     }
 
-    if (!userId || req.user.role === "user") {
-      return res.status(401).json({ message: "Not authorised" });
+    if (!userId && req.user.role === "user") {
+      return res.status(401).json({ message: "Not authorised qqq" });
     }
     console.log(">>>>");
     const newReview = await ReviewsModel({
@@ -261,10 +261,11 @@ export const updateReview = async (req, res) => {
 };
 
 export const deleteReview = async (req, res) => {
+  const user = req.user;
+  const userId = req.user.id;
+  const _id = req.params.id;
   try {
-    const user = req.user;
-    const userId = req.user.id;
-    const _id = req.params.id;
+    console.log(user.role, "role", userId, _id);
     if (!userId) {
       return res.status(401).json({ message: "not authorised" });
     }
@@ -276,20 +277,20 @@ export const deleteReview = async (req, res) => {
       return res.status(404).json({ message: "Review is not found" });
     }
 
-    if (
-      user.role === "admin" ||
-      user.role === "superadmin" ||
-      review.userId === userId
-    ) {
-      const deleteReview = await ReviewsModel.findByIdAndDelete(_id);
-      if (!deleteReview) {
-        return res.status(500).json({ message: "Failed to delete review" });
-      }
-
-      return res.status(200).json({ message: "Review successfully deleted" });
-    } else {
-      return res.status(403).json({ message: "Unauthorized to delete review" });
+    // if (
+    //   (review.userId === userId && user.role === "user") ||
+    //   user.role === "admin" ||
+    //   user.role === "superadmin"
+    // ) {
+    //   return res.status(403).json({ message: "Unauthorized to delete review" });
+    // }
+    const deleteReview = await ReviewsModel.findByIdAndDelete(_id);
+    console.log(deleteReview, "delRev");
+    if (!deleteReview) {
+      return res.status(500).json({ message: "Failed to delete review" });
     }
+
+    return res.status(200).json({ message: "Review successfully deleted" });
   } catch (error) {
     res.status(500).json({ message: "Error in deleteReview" });
   }
