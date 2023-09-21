@@ -14,6 +14,7 @@ import { Server } from "socket.io"; // Импортируем Server из socket
 import * as socketIO from "socket.io";
 import { searchRouter } from "./routes/searchRouter.js";
 import { handleError } from "./utils/errors.js";
+
 const app = express();
 dotenv.config();
 app.use(express.json());
@@ -36,6 +37,7 @@ app.use("/api/likes/", likesRouter);
 app.use("/api/upload/", uploadRouter);
 app.use("/api/comments/", commentsRouter);
 app.use("/api/search/", searchRouter);
+
 app.use(handleError);
 
 // socket
@@ -65,61 +67,3 @@ io.on("connection", (socket) => {
     // console.log("A user disconnected");
   });
 });
-
-// github
-// const githubConfig = {
-//   clientID: "ac99e8446355ba05f5ae",
-//   clientSecret: "b15cfbcc84cf740db46afac7bfa16e19ff655ee2",
-//   callbackURL: "YOUR_CALLBACK_URL",
-// };
-// // Используйте GitHubStrategy для аутентификации через GitHub
-// passport.use(
-//   new GitHubStrategy(
-//     githubConfig,
-//     (accessToken, refreshToken, profile, done) => {
-//       // Здесь вы можете сохранить профиль пользователя или выполнить другие действия с данными пользователя
-//       return done(null, profile);
-//     }
-//   )
-// );
-
-// // Используйте Passport.js для управления сеансами и аутентификацией
-// passport.serializeUser((user, done) => {
-//   done(null, user);
-// });
-
-// passport.deserializeUser((user, done) => {
-//   done(null, user);
-// });
-
-// // Используйте Express.js с Passport.js
-// app.use(passport.initialize());
-// app.use(passport.session());
-
-// // Роут для инициирования аутентификации
-// app.get("/auth/github", passport.authenticate("github"));
-
-// // Роут обратного вызова после аутентификации на GitHub
-// app.get(
-//   "/auth/github/callback",
-//   passport.authenticate("github", { failureRedirect: "/" }),
-//   (req, res) => {
-//     // Если аутентификация успешна, вы можете перенаправить пользователя или выполнить другие действия
-//     res.redirect("/dashboard");
-//   }
-// );
-
-// // Роут для выхода
-// app.get("/logout", (req, res) => {
-//   req.logout();
-//   res.redirect("/");
-// });
-
-// // Защищенный роут - проверка аутентификации пользователя
-// app.get("/dashboard", (req, res) => {
-//   if (req.isAuthenticated()) {
-//     res.send("Добро пожаловать на вашу панель управления.");
-//   } else {
-//     res.redirect("/");
-//   }
-// });

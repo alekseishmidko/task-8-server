@@ -4,6 +4,7 @@ import UsersModel from "../models/Users.js";
 import ReviewsModel from "../models/Reviews.js";
 import dotenv from "dotenv";
 dotenv.config();
+
 // * @route POST /api/users/login
 // * @desс Логин
 // * @access Public
@@ -338,89 +339,87 @@ export const signUpGoogle = async (req, res) => {
     res.status(500).json({ message: "Error in sign up Google" });
   }
 };
-// export const signUpGoogle = async (req, res) => {
-//   try {
-//     const { email, id, picture, verified_email, name } = req.body;
+/**
+ * @route POST /api/users/facebook
+ * @desс Регистрация
+ * @access Public
+ */
 
-//     if (!email || !id || !name) {
-//       return res
-//         .status(400)
-//         .json({ message: "Something is wrong with the request data" });
-//     }
+export const signUpFacebook = async (req, res) => {
+  try {
+    const { email, id, name } = req.body;
 
-//     if (verified_email === false) {
-//       return res.status(400).json({ message: "Unverified email" });
-//     }
+    if (!email || !id || !name) {
+      return res
+        .status(400)
+        .json({ message: "Something is wrong with the request data" });
+    }
 
-//     const existingUser = await UsersModel.findOne({ email });
-//     if (existingUser?.status === "disabled") {
-//       return res.status(401).json({ message: "user Disabled" });
-//     }
-//     if (existingUser) {
-//       // Если пользователь существует, проверьте пароль
-//       const isPasswordValid = await bcrypt.compare(id, existingUser.password);
+    const existingUser = await UsersModel.findOne({ email });
 
-//       console.log(existingUser, "ex User");
-//       if (isPasswordValid) {
-//         // Пароль совпадает, создайте и отправьте токен
-//         const token = jwt.sign({ id: existingUser.id }, process.env.SECRET, {
-//           expiresIn: "1d",
-//         });
-//         res.status(200).json({
-//           user: {
-//             _id: existingUser._id,
-//             email: existingUser.email,
-//             name: existingUser.name,
-//             key: existingUser.key,
-//             role: existingUser.role,
-//             status: existingUser.status,
-//             avatarUrl: existingUser.avatarUrl,
-//           },
-//           token,
-//         });
-//       } else {
-//         // Пароль не совпадает
-//         return res.status(401).json({ message: "Incorrect password" });
-//       }
-//     } else {
-//       // Пользователь не существует, создайте его
-//       const salt = await bcrypt.genSalt(10);
-//       const hashedPassword = await bcrypt.hash(id, salt);
+    if (existingUser?.status === "disabled") {
+      return res.status(401).json({ message: "user Disabled" });
+    }
+    if (existingUser) {
+      // Если пользователь существует, проверьте пароль
+      const isPasswordValid = await bcrypt.compare(id, existingUser.password);
 
-//       const newUser = await UsersModel({
-//         email,
-//         name,
-//         password: hashedPassword,
-//         key: Date.now(),
-//         role: "user",
-//         status: "active",
-//         avatarUrl: picture,
-//       });
+      if (isPasswordValid) {
+        // Пароль совпадает, создайте и отправьте токен
+        const token = jwt.sign({ id: existingUser.id }, process.env.SECRET, {
+          expiresIn: "1d",
+        });
+        res.status(200).json({
+          user: {
+            _id: existingUser._id,
+            email: existingUser.email,
+            name: existingUser.name,
+            key: existingUser.key,
+            role: existingUser.role,
+          },
+          token,
+        });
+      } else {
+        // Пароль не совпадает
+        return res.status(401).json({ message: "Incorrect password" });
+      }
+    } else {
+      // Пользователь не существует, создайте его
 
-//       const user = await newUser.save();
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(id, salt);
 
-//       if (user) {
-//         const token = jwt.sign({ id: user.id }, process.env.SECRET, {
-//           expiresIn: "1d",
-//         });
-//         res.status(201).json({
-//           user: {
-//             _id: user._id,
-//             email: user.email,
-//             name: user.name,
-//             key: user.key,
-//             role: user.role,
-//             avatarUrl: user.avatarUrl,
-//             status: user.status,
-//           },
-//           token,
-//         });
-//       } else {
-//         return res.status(400).json({ message: "Failed to create the user" });
-//       }
-//     }
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ message: "Error in sign up Google" });
-//   }
-// };
+      const newUser = await UsersModel({
+        email,
+        name,
+        password: hashedPassword,
+        key: Date.now(),
+        role: "user",
+      });
+
+      const user = await newUser.save();
+
+      if (user) {
+        const token = jwt.sign({ id: user.id }, process.env.SECRET, {
+          expiresIn: "1d",
+        });
+        res.status(201).json({
+          user: {
+            _id: user._id,
+            email: user.email,
+            name: user.name,
+            key: user.key,
+            role: user.role,
+            avatarUrl: user.avatarUrl,
+          },
+          token,
+        });
+      } else {
+        return res.status(400).json({ message: "Failed to create the user" });
+      }
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error in sign up Facebook" });
+  }
+};
