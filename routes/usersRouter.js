@@ -13,10 +13,15 @@ import {
 } from "../controllers/usersController.js";
 import { handleError } from "../utils/errors.js";
 import { auth } from "../utils/auth.js";
+import {
+  loginValidation,
+  registerValidation,
+} from "../validations/validations.js";
+import handleValidationError from "../validations/handleValidationError.js";
 //api/users/signIn
-usersRouter.post("/signIn", signIn);
+usersRouter.post("/signIn", loginValidation, handleValidationError, signIn);
 //api/users/signUp
-usersRouter.post("/signUp", signUp);
+usersRouter.post("/signUp", registerValidation, handleValidationError, signUp);
 //api/users/current
 usersRouter.get("/current", auth, current);
 //api/users/all

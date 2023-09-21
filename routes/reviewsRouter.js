@@ -16,10 +16,18 @@ import { handleRatingReview } from "../controllers/ratingController.js";
 import { uploadImages } from "../controllers/uploadController.js";
 import upload from "../middleware/multer.js";
 import { errorWrap } from "../utils/errors.js";
+import { reviewCreateValidation } from "../validations/validations.js";
+import handleValidationError from "../validations/handleValidationError.js";
 //api/reviews/upload
 reviewsRouter.post("/upload", upload.array("files", 4), uploadImages);
 //api/reviews/create
-reviewsRouter.post("/create", auth, createReview);
+reviewsRouter.post(
+  "/create",
+  reviewCreateValidation,
+  handleValidationError,
+  auth,
+  createReview
+);
 //api/reviews/all
 reviewsRouter.get("/all", getAllReviews);
 //api/reviews/:id

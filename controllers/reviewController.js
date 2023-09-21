@@ -93,7 +93,7 @@ export const getAllReviews = async (req, res) => {
       .limit(6)
       .populate("userId")
       .populate("ratingFive")
-      .sort("createdAt")
+      .sort("-createdAt")
       .exec();
     const pop6ReviewsRaw = await ReviewsModel.find()
       .limit(6)
@@ -235,12 +235,12 @@ export const updateReview = async (req, res) => {
         .status(404)
         .json({ message: "dont find review! (updateReview)" });
     }
-
+    console.log(userId == existingReview.userId);
     //  проверка на роль
     if (
-      user.role === "admin" ||
-      user.role === "superadmin" ||
-      existingReview.userId === userId
+      (user.role === "admin" && user._id !== userId) ||
+      (user.role === "superadmin" && user._id !== userId) ||
+      existingReview.userId == userId
     ) {
       existingReview.title = title;
       existingReview.tags = extractHashtags(content);
@@ -278,7 +278,7 @@ export const deleteReview = async (req, res) => {
     }
 
     // if (
-    //   (review.userId === userId && user.role === "user") ||
+    //   (review.userId == userId && user.role === "user") ||
     //   user.role === "admin" ||
     //   user.role === "superadmin"
     // ) {
