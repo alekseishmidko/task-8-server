@@ -12,6 +12,6 @@ import {
 //api/likes/:id
 likesRouter.post("/:id", auth, errorWrap(handleLike));
 //api/likes/:id
-likesRouter.get("/", auth, likesCount);
+likesRouter.get("/", auth, errorWrap(likesCount));
 //api/likes/
-likesRouter.get("/all", allLikes);
+likesRouter.get("/all", errorWrap(allLikes));

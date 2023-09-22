@@ -50,10 +50,11 @@ export const signIn = async (req, res) => {
 };
 
 /**
- * @route POST /api/users/register
- * @desс Регистрация
- * @access Public
- */
+//  * @route POST /api/users/register
+//  * @desс Регистрация
+//  * @access Public
+//  */
+
 export const signUp = async (req, res) => {
   try {
     const { email, password, name } = req.body;

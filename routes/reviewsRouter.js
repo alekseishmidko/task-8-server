@@ -29,18 +29,18 @@ reviewsRouter.post(
   createReview
 );
 //api/reviews/all
-reviewsRouter.get("/all", getAllReviews);
+reviewsRouter.get("/all", errorWrap(getAllReviews));
 //api/reviews/:id
-reviewsRouter.get("/:id", getOneReview);
+reviewsRouter.get("/:id", errorWrap(getOneReview));
 //api/reviews/users/myReviews
 reviewsRouter.get("/users/myReviews", auth, errorWrap(getMyReviews));
 //api/reviews/:id
-reviewsRouter.put("/:id", auth, updateReview);
+reviewsRouter.put("/:id", auth, errorWrap(updateReview));
 //api/reviews/:id
-reviewsRouter.delete("/:id", auth, deleteReview);
+reviewsRouter.delete("/:id", auth, errorWrap(deleteReview));
 //api/reviews/:id
-reviewsRouter.post("/:id", auth, handleRatingReview);
+reviewsRouter.post("/:id", auth, errorWrap(handleRatingReview));
 //api/reviews/users/:id
-reviewsRouter.get("/users/:id", auth, getReviewsByUser);
+reviewsRouter.get("/users/:id", auth, errorWrap(getReviewsByUser));
 //api/reviews/related/:id
-reviewsRouter.post("/related/:id", getRelatedReviews);
+reviewsRouter.post("/related/:id", errorWrap(getRelatedReviews));

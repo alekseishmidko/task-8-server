@@ -10,8 +10,10 @@ import {
   getOneUserReviews,
   signUpGoogle,
   handleStatusUser,
+  signUpFacebook,
 } from "../controllers/usersController.js";
 import { handleError } from "../utils/errors.js";
+import { errorWrap } from "../utils/errors.js";
 import { auth } from "../utils/auth.js";
 import {
   loginValidation,
@@ -23,17 +25,19 @@ usersRouter.post("/signIn", loginValidation, handleValidationError, signIn);
 //api/users/signUp
 usersRouter.post("/signUp", registerValidation, handleValidationError, signUp);
 //api/users/current
-usersRouter.get("/current", auth, current);
+usersRouter.get("/current", auth, errorWrap(current));
 //api/users/all
-usersRouter.get("/all", auth, getAllUsers);
+usersRouter.get("/all", auth, errorWrap(getAllUsers));
 //api/users/:id
-usersRouter.delete("/:id", auth, deleteUser);
+usersRouter.delete("/:id", auth, errorWrap(deleteUser));
 //api/users/:id
-usersRouter.put("/:id", auth, handleRoleUser);
+usersRouter.put("/:id", auth, errorWrap(handleRoleUser));
 //api/users/:id
-usersRouter.get("/:id", auth, getOneUserReviews);
+usersRouter.get("/:id", auth, errorWrap(getOneUserReviews));
 
 //api/users/google
-usersRouter.post("/google", signUpGoogle);
+usersRouter.post("/google", errorWrap(signUpGoogle));
+//api/users/facebook
+usersRouter.post("/facebook", errorWrap(signUpFacebook));
 //api/users/:id
-usersRouter.post("/status/:id", auth, handleStatusUser);
+usersRouter.post("/status/:id", auth, errorWrap(handleStatusUser));

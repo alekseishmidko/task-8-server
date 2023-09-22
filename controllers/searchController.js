@@ -4,7 +4,6 @@ export const searchReviews = async (req, res) => {
   try {
     const query = req.query.q;
     // console.log(query);
-    // const results = await ReviewsModel.find({ $text: { $search: query } });
     const reviewsRaw = await ReviewsModel.find({
       $or: [
         { title: { $regex: query, $options: "i" } },
