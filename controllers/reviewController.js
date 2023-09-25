@@ -77,10 +77,9 @@ export const createReview = async (req, res) => {
 export const getAllReviews = async (req, res) => {
   try {
     const sortBy = req.query.sortBy;
-    console.log(sortBy);
+
     const parameters = sortBy === "" ? null : { group: sortBy };
-    // console.log(parameters);
-    //
+
     const allReviewsRaw = await ReviewsModel.find(parameters)
       .sort("createdAt")
       .populate("userId")
@@ -172,7 +171,6 @@ export const getOneReview = async (req, res) => {
 };
 
 export const getMyReviews = async (req, res) => {
-  // console.log(req.body);
   const userId = req.user._id;
   if (!userId) {
     return res.status(401).json({ message: "Not authorised" });
@@ -221,8 +219,7 @@ export const updateReview = async (req, res) => {
     const userId = req.user.id;
     const user = req.user;
     const _id = req.params.id;
-    console.log(userId, "userId", _id);
-    console.log(req.body.title, "body");
+
     const { title, group, rating, content } = req.body;
     if (!userId) {
       return res.status(401).json({ message: "not authorised" });
